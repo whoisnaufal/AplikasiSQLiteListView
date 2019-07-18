@@ -1,6 +1,8 @@
 package com.mozzastudio.aplikasisqlite;
 
+import android.content.Intent;
 import android.opengl.ETC1;
+import android.sax.StartElementListener;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -40,6 +42,8 @@ public class InputActivity extends AppCompatActivity {
                 etNama.setText("");
                 etAlamat.setText("");
                 Toast.makeText(InputActivity.this, "Data tersimpan!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(InputActivity.this, MainActivity.class);
+                startActivity(intent);
             }
         });
 

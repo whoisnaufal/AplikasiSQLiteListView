@@ -5,14 +5,10 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.strictmode.SqliteObjectLeakedViolation;
-import android.provider.ContactsContract;
 import android.util.Log;
-import android.widget.SimpleAdapter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
