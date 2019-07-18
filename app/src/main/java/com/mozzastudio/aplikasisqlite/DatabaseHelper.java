@@ -9,6 +9,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -46,18 +47,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return insert;
     }
 
-    public ArrayList<HashMap<String, String>> GetUsers() {
+    public ArrayList<Map<String, Object>> GetUsers() {
         SQLiteDatabase db = this.getWritableDatabase();
-        ArrayList<HashMap<String, String>> userList = new ArrayList<>();
-        String query = "SELECT nama, alamat FROM " + TABLE_USERS;
+        ArrayList<Map<String, Object>> userList = new ArrayList<>();
+        String nama = "";
+        String alamat = "";
+        int id = 0;
+        String query = "SELECT * FROM " + TABLE_USERS;
         Cursor cursor = db.rawQuery(query, null);
-        while (cursor.moveToNext()) {
-            HashMap<String, String> user = new HashMap<>();
-            user.put("nama", cursor.getString(cursor.getColumnIndex(KEY_NAMA)));
-            user.put("alamat", cursor.getString(cursor.getColumnIndex(KEY_ALAMAT)));
-            userList.add(user);
+        if (cursor.moveToFirst()) {
+            do {
+                id = cursor.getInt(cursor.getColumnIndex(KEY_ID));
+                nama = cursor.getString(cursor.getColumnIndex(KEY_NAMA));
+                alamat = cursor.getString(cursor.getColumnIndex(KEY_ALAMAT));
+                Map<String, Object> listItemMap = new HashMap<>();
+                listItemMap.put("id", id);
+                listItemMap.put("nama", nama);
+                listItemMap.put("alamat", alamat);
+                userList.add(listItemMap);
+            }
+            while (cursor.moveToNext());
         }
         return userList;
+    }
+
+    public void update(int id, String nama, String alamat) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String updateQuery = "UPDATE " + TABLE_USERS + " SET " + KEY_NAMA + "='" + nama + "'," + KEY_ALAMAT + "='" + alamat + "' WHERE " + KEY_ID + "='" + id + "'";
+        db.execSQL(updateQuery);
+        db.close();
+    }
+
+    public void delete(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String deleteQuery = "DELETE FROM " + TABLE_USERS + " WHERE " + KEY_ID + "='" + id + "'";
+        db.execSQL(deleteQuery);
+        db.close();
     }
 }
 

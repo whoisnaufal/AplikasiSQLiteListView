@@ -1,20 +1,26 @@
 package com.mozzastudio.aplikasisqlite;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
+
+    ListView listView;
+    ArrayList<Map<String, Object>> arrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        listView = (ListView) findViewById(R.id.listView);
 
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -31,6 +38,43 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long l) {
+                final int id = (Integer) arrayList.get(position).get("id");
+                final String nama = (String) arrayList.get(position).get("nama");
+                final String alamat = (String) arrayList.get(position).get("alamat");
+                Intent intent = new Intent(MainActivity.this, InputActivity.class);
+                intent.putExtra("id", id);
+                intent.putExtra("nama", nama);
+                intent.putExtra("alamat", alamat);
+                startActivity(intent);
+            }
+        });
+
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long l) {
+                final int id = (Integer) arrayList.get(position).get("id");
+                tampilkanDialogKonfirmasiHapus(id);
+                return true;
+            }
+        });
+    }
+
+    void tampilkanDialogKonfirmasiHapus(final int id) {
+        new AlertDialog.Builder(this)
+                .setTitle("Hapus Data ini?")
+                .setMessage("Apakah Anda yakin ingin menghapus data in?")
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        deleteUser(id);
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null).show();
     }
 
     @Override
@@ -63,10 +107,18 @@ public class MainActivity extends AppCompatActivity {
 
     void getList() {
         DatabaseHelper db = new DatabaseHelper(this);
-        ArrayList<HashMap<String, String>> userList = db.GetUsers();
+        arrayList = db.GetUsers();
 
         ListView lv = findViewById(R.id.listView);
-        SimpleAdapter adapter = new SimpleAdapter(MainActivity.this, userList, android.R.layout.simple_list_item_2, new String[]{"nama", "alamat"}, new int[]{android.R.id.text1, android.R.id.text2});
+        SimpleAdapter adapter = new SimpleAdapter(MainActivity.this, arrayList, android.R.layout.simple_list_item_2, new String[]{"nama", "alamat"}, new int[]{android.R.id.text1, android.R.id.text2});
         lv.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+    void deleteUser(int id) {
+        DatabaseHelper db = new DatabaseHelper(this);
+        db.delete(id);
+        arrayList.clear();
+        getList();
     }
 }
